@@ -1,16 +1,17 @@
 use std::io;
 use std::io::Read;
 
+use logos::Logos;
+
 mod model;
 mod lexer;
 mod detector;
 
-use crate::lexer::PlainTextLexer;
-use crate::detector::NaiveDetector;
+use crate::detector::LogosNaiveDetector;
+use crate::model::LogosToken;
 
 fn main() -> io::Result<()> {
-    let mut lexer = PlainTextLexer::new();
-    let mut detector = NaiveDetector::new();
+    let mut detector = LogosNaiveDetector::new();
 
     let mut errors: Vec<(usize, usize)> = Vec::new();
 
@@ -22,9 +23,9 @@ fn main() -> io::Result<()> {
             break;
         }
 
-        let tokens = lexer.tokenize_row(buffer.as_str());
+        let mut tokens = LogosToken::lexer(buffer.as_str());
 
-        let mut c_errors = detector.detect_errors(&tokens);
+        let mut c_errors = detector.detect_errors(&mut tokens);
         errors.append(&mut c_errors);
     }
 
