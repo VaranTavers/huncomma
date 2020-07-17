@@ -6,7 +6,7 @@ pub struct NaiveDetector<'a> {
 
 impl<'a> NaiveDetector<'a> {
     pub fn new() -> NaiveDetector<'a> {
-        let words = vec!["hogy", "ami", "aki", "ahol", "amikor", "amiért", "mert", "mint"];
+        let words = vec!["hogy", "ami", "aki", "ahol", "amikor", "amiért", "mert", "mint", "illetve", "amint", "valamint"];
         NaiveDetector {
             words
         }
