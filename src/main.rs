@@ -12,7 +12,7 @@ use crate::model::Token;
 fn main() -> io::Result<()> {
     let mut detector = NaiveDetector::new();
 
-    let mut errors: Vec<(usize, usize)> = Vec::new();
+    let mut errors: Vec<(usize, usize, f64)> = Vec::new();
 
     loop {
         let mut buffer = String::new();
@@ -28,7 +28,7 @@ fn main() -> io::Result<()> {
         errors.append(&mut c_errors);
     }
 
-    for (r, c) in errors {
+    for (r, c, _prob) in errors {
         println!("ln: {}, col: {} Potenciális vesszőhiba", r, c);
     }
 
