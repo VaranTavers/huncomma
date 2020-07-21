@@ -7,7 +7,7 @@ mod model;
 mod detector;
 
 use crate::detector::NaiveDetector;
-use crate::model::Token;
+use crate::model::PlainTextToken;
 
 fn main() -> io::Result<()> {
     let mut detector = NaiveDetector::new();
@@ -22,7 +22,7 @@ fn main() -> io::Result<()> {
             break;
         }
 
-        let mut tokens = Token::lexer(buffer.as_str());
+        let mut tokens = PlainTextToken::lexer(buffer.as_str());
 
         let mut c_errors = detector.detect_errors(&mut tokens);
         errors.append(&mut c_errors);

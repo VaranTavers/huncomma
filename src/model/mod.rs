@@ -1,3 +1,3 @@
-mod logos_token;
+mod text_token;
 
-pub use logos_token::Token;
+pub use text_token::PlainTextToken;

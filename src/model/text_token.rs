@@ -1,7 +1,7 @@
 use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq)]
-pub enum Token {
+pub enum PlainTextToken {
     // Tokens can be literal strings, of any length.
     #[regex("[0-9]+(,[0-9]+)?")]
     Number,

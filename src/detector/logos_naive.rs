@@ -1,4 +1,4 @@
-use crate::model::Token;
+use crate::model::PlainTextToken;
 use logos::Lexer;
 
 pub struct NaiveDetector<'a> {
@@ -36,7 +36,7 @@ impl<'a> NaiveDetector<'a> {
         }
     }
 
-    pub fn detect_errors(&mut self, tokens: &mut Lexer<Token>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
         self.col = 1;
         self.row = 1;
         self.is_last_token_in_vec = false;
@@ -45,7 +45,7 @@ impl<'a> NaiveDetector<'a> {
         self.detect_errors_in_row(tokens)
     }
 
-    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<Token>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
 
@@ -57,14 +57,14 @@ impl<'a> NaiveDetector<'a> {
                 }
             }
             self.col += tokens.slice().chars().count() + 1;
-            if token == Token::NewLine {
+            if token == PlainTextToken::NewLine {
                 self.col = 1;
                 self.row += 1;
             }
 
             self.is_last_token_in_vec = index.is_some();
-            if token != Token::NewLine {
-                self.is_last_token_comma = token == Token::Comma;
+            if token != PlainTextToken::NewLine {
+                self.is_last_token_comma = token == PlainTextToken::Comma;
             }
         }
 
@@ -78,12 +78,12 @@ mod tests {
     use logos::Logos;
 
     use crate::detector::NaiveDetector;
-    use crate::model::Token;
+    use crate::model::PlainTextToken;
 
     #[test]
     fn empty_str() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("");
+        let mut tokens = PlainTextToken::lexer("");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn no_comma_in_sight() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Ki kopog? Mi kopog? Egy fekete holló!");
+        let mut tokens = PlainTextToken::lexer("Ki kopog? Mi kopog? Egy fekete holló!");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     fn comma_provided() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Azt szeretném mondani, hogy minden jól sikerült.");
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani, hogy minden jól sikerült.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);
@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn comma_duplicate_words() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Nem értem, hogy hogy kellene ezt csinálni.");
+        let mut tokens = PlainTextToken::lexer("Nem értem, hogy hogy kellene ezt csinálni.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);
@@ -119,7 +119,7 @@ mod tests {
     #[test]
     fn no_comma_one_line() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Azt szeretném mondani hogy minden jól sikerült.");
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani hogy minden jól sikerült.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 1);
@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn no_comma_next_line() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Azt szeretném mondani\nhogy minden jól sikerült.");
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani\nhogy minden jól sikerült.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 1);
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn no_comma_multiple_lines() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Azt szeretném mondani\n\n\n\nhogy minden jól sikerült.");
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani\n\n\n\nhogy minden jól sikerült.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 1);
@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn no_comma_duplicate_words() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Nem értem hogy hogy kellene ezt csinálni.");
+        let mut tokens = PlainTextToken::lexer("Nem értem hogy hogy kellene ezt csinálni.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 1);
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn no_comma_multiple_error_one_line() {
         let mut sut = NaiveDetector::new();
-        let mut tokens = Token::lexer("Nem értem hogy kellene ezt csinálni. Elmagyarázod ha szépen megkérlek?");
+        let mut tokens = PlainTextToken::lexer("Nem értem hogy kellene ezt csinálni. Elmagyarázod ha szépen megkérlek?");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 2);
