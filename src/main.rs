@@ -7,12 +7,12 @@ mod model;
 mod detector;
 
 use crate::detector::NaiveDetector;
-use crate::model::PlainTextToken;
+use crate::model::{PlainTextToken, Mistake};
 
 fn main() -> io::Result<()> {
     let mut detector = NaiveDetector::new();
 
-    let mut errors: Vec<(usize, usize, f64)> = Vec::new();
+    let mut errors: Vec<(usize, usize, Mistake)> = Vec::new();
 
     loop {
         let mut buffer = String::new();
@@ -28,8 +28,10 @@ fn main() -> io::Result<()> {
         errors.append(&mut c_errors);
     }
 
-    for (r, c, _prob) in errors {
-        println!("ln: {}, col: {} Potenciális vesszőhiba", r, c);
+    for (r, c, mistake) in errors {
+        if mistake.prob > 0.30 {
+            println!("ln: {}, col: {} Potenciális vesszőhiba ({})", r, c, mistake.get_str());
+        }
     }
 
     Ok(())

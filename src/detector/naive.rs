@@ -1,4 +1,4 @@
-use crate::model::PlainTextToken;
+use crate::model::{PlainTextToken, Mistake};
 use logos::Lexer;
 
 // TODO: Read words from settings file
@@ -23,7 +23,7 @@ pub struct NaiveDetector<'a> {
 impl<'a> NaiveDetector<'a> {
     pub fn new() -> NaiveDetector<'a> {
         let word_probs = vec![
-            ("és", 0.50),
+            ("és", 0.20),
             ("hogy", 0.70),
             // ami + toldalék
             ("ami", 0.50),
@@ -51,6 +51,7 @@ impl<'a> NaiveDetector<'a> {
             ("akikért", 0.50),
             // a többi
             ("de", 0.50),
+            ("hiszen", 0.50),
             ("ahol", 0.50),
             ("amikor", 0.50),
             ("mert", 0.50),
@@ -70,7 +71,7 @@ impl<'a> NaiveDetector<'a> {
         }
     }
 
-    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         self.col = 1;
         self.row = 1;
         self.is_last_token_in_vec = false;
@@ -79,7 +80,7 @@ impl<'a> NaiveDetector<'a> {
         self.detect_errors_in_row(tokens)
     }
 
-    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
 
@@ -87,7 +88,10 @@ impl<'a> NaiveDetector<'a> {
 
             if !self.is_last_token_comma && !self.is_last_token_in_vec {
                 if let Some(pos) = index {
-                    errors.push((self.row, self.col, self.probs[pos]));
+                    errors.push((self.row,
+                                 self.col,
+                                 Mistake::new_dyn(format!("A \"{}\" szó elé általában vesszőt rakunk.", self.words[pos]), self.probs[pos])
+                    ));
                 }
             }
             self.col += tokens.slice().chars().count() + 1;
