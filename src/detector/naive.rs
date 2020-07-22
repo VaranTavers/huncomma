@@ -1,6 +1,16 @@
 use crate::model::PlainTextToken;
 use logos::Lexer;
 
+// TODO: Read words from settings file
+
+/// Detects if there isn't a comma before the given words. These words are generally preceded by a
+/// comma, however for most of them there are exceptions.
+///
+/// Every word is given a probability, which means the following: what is the probability of actually
+/// needing a comma before that word.
+///
+/// Exception: if there are two of the given words immediately after each other, the second one
+/// doesn't require a comma before it (the first one still does)
 pub struct NaiveDetector<'a> {
     words: Vec<&'a str>,
     probs: Vec<f64>,
@@ -13,12 +23,36 @@ pub struct NaiveDetector<'a> {
 impl<'a> NaiveDetector<'a> {
     pub fn new() -> NaiveDetector<'a> {
         let word_probs = vec![
+            ("és", 0.50),
             ("hogy", 0.70),
+            // ami + toldalék
             ("ami", 0.50),
+            ("amit", 0.50),
+            ("amitől", 0.50),
+            ("aminek", 0.50),
+            ("amiért", 0.50),
+            // amik + toldalék
+            ("amik", 0.50),
+            ("amiket", 0.50),
+            ("amiknek", 0.50),
+            ("amiktől", 0.50),
+            ("amikért", 0.50),
+            // aki + toldalék
             ("aki", 0.50),
+            ("akit", 0.50),
+            ("akinek", 0.50),
+            ("akiért", 0.50),
+            ("akitől", 0.50),
+            // akik + toldalék
+            ("akik", 0.50),
+            ("akiket", 0.50),
+            ("akiknek", 0.50),
+            ("akiktől", 0.50),
+            ("akikért", 0.50),
+            // a többi
+            ("de", 0.50),
             ("ahol", 0.50),
             ("amikor", 0.50),
-            ("amiért", 0.50),
             ("mert", 0.50),
             ("mint", 0.80),
             ("illetve", 1.00),

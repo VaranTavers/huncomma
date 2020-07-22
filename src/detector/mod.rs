@@ -1,3 +1,5 @@
-mod logos_naive;
+mod pair;
+mod naive;
 
-pub use logos_naive::NaiveDetector;
+pub use naive::NaiveDetector;
+pub use pair::PairDetector;
