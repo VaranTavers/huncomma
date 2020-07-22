@@ -1,19 +1,21 @@
-use crate::model::PlainTextToken;
+use crate::model::{PlainTextToken, Mistake};
 use logos::Lexer;
 use std::cell::Cell;
 
 /// Detects pairs of words which usually require a comma between them, these words don't have to be
 /// right next to each other! Each pair is given a probability, just like in the NaiveDetector.
 ///
+/// All input will be converted to lowercase!
+///
 /// This doesn't detect if the comma is in the wrong place between the two words! (Not sure yet)
 ///
-/// Example: ha ... akkor: Ha kimész, akkor tudsz hozni nekem egy hamburgert?
+/// Example: ha ... akkor: Ha mész vásárolni, akkor ne felejts el tejet hozni!
 /// (If you go out then can you bring me a hamburger?)
 ///
 ///
 pub struct PairDetector<'a> {
     first_words: Vec<&'a str>,
-    second_words: Vec<&'a str>,
+    second_words: Vec<Vec<&'a str>>,
     probs: Vec<f64>,
     col: usize,
     row: usize,
@@ -23,23 +25,18 @@ pub struct PairDetector<'a> {
 impl<'a> PairDetector<'a> {
     pub fn new() -> PairDetector<'a> {
         let word_probs = vec![
-            ("és", "", 0.50),
-            ("hogy", "", 0.70),
-            ("ami", "", 0.50),
-            ("aki", "", 0.50),
-            ("ahol", "", 0.50),
-            ("amikor", "", 0.50),
-            ("amiért", "", 0.50),
-            ("mert", "", 0.50),
-            ("mint", "", 0.80),
-            ("illetve", "", 1.00),
-            ("amint", "", 1.00),
-            ("valamint", "", 1.00),
-            ("ha", "", 1.00),
+            ("mind", vec!["mind"], 0.80),
+            ("azt", vec!["hogy", "akit", "amit"], 0.80),
+            ("az", vec!["hogy"], 0.80),
+            ("mivel", vec!["ezért"], 0.80),
+            ("ha", vec!["akkor"], 0.80),
+            ("abban", vec!["hogy"], 0.80),
+            // Pairs starting with "olyan", may be separated later
+            ("olyan", vec!["mint", "aki", "akit", "akiért", "ami", "amit", "amiért"], 0.50),
         ];
         PairDetector {
             first_words: word_probs.iter().map(|(a, _b, _c)| *a).collect(),
-            second_words: word_probs.iter().map(|(_a, b, _c)| *b).collect(),
+            second_words: word_probs.iter().map(|(_a, b, _c)| b.clone()).collect(),
             probs: word_probs.iter().map(|(_a, _b, c)| *c).collect(),
             col: 1,
             row: 1,
@@ -47,17 +44,50 @@ impl<'a> PairDetector<'a> {
         }
     }
 
-    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         self.col = 1;
         self.row = 1;
+        self.first_word_active.iter().for_each(|a| a.set(false));
 
         self.detect_errors_in_row(tokens)
     }
 
-    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, f64)> {
+    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
+            let lowercase = String::from(tokens.slice()).to_lowercase();
+            // Checks for every active (which already appeared) first word if any of it's second words
+            // is the current one. If it is, then there might be a missing comma.
+            for (index, active) in self.first_word_active.iter().enumerate() {
+                if active.get() {
+                    let second_index = self.second_words[index].iter().position(|a| a == &lowercase.as_str());
+                    if let Some(pos) = second_index {
+                        errors.push(
+                            (self.row, self.col,
+                             Mistake::new_dyn(
+                                 format!("A \"{}\" és \"{}\" szavak közé általában vesszőt rakunk (általában a második elé).", self.first_words[index], self.second_words[index][pos]),
+                                 self.probs[pos]
+                             )
+                        ));
+                    }
+                }
+            }
 
+            self.col += tokens.slice().chars().count() + 1;
+            if token == PlainTextToken::NewLine {
+                self.col = 1;
+                self.row += 1;
+            }
+
+            let index = self.first_words.iter().position(|a| a == &lowercase.as_str());
+            if let Some(pos) = index {
+                self.first_word_active[pos].set(true);
+            }
+
+            // If it's a comma or a new sentence, then we don't need to check anymore if it is missing between words.
+            if token == PlainTextToken::Comma || token == PlainTextToken::EndOfSentence {
+                self.first_word_active.iter().for_each(|a| a.set(false));
+            }
             // TODO: Actually to do it
         }
 
@@ -77,6 +107,60 @@ mod tests {
     fn empty_str() {
         let mut sut = PairDetector::new();
         let mut tokens = PlainTextToken::lexer("");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn comma_present() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Mind a tanárok, mind a diákok egyetértenek abban, hogy változásra van szükség!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn one_comma_missing() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Mind a tanárok mind a diákok egyetértenek abban, hogy változásra van szükség!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 1);
+    }
+
+    #[test]
+    fn both_commas_missing() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Mind a tanárok mind a diákok egyetértenek abban hogy változásra van szükség!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 2);
+    }
+
+    #[test]
+    fn example_correct() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Ha mész vásárolni, akkor ne felejts el tejet hozni!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn example_incorrect() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Ha mész vásárolni akkor ne felejts el tejet hozni!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 1);
+    }
+
+    #[test]
+    fn no_detection_over_sentences() {
+        let mut sut = PairDetector::new();
+        let mut tokens = PlainTextToken::lexer("Mind hősök voltak ők! Mind az a tizenhárom, kit várt a vérpad!");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);

@@ -25,6 +25,9 @@ impl<'a> NaiveDetector<'a> {
         let word_probs = vec![
             ("és", 0.20),
             ("hogy", 0.70),
+            // a + dolgok
+            ("ahol", 0.50),
+            ("amikor", 0.50),
             // ami + toldalék
             ("ami", 0.50),
             ("amit", 0.50),
@@ -52,8 +55,6 @@ impl<'a> NaiveDetector<'a> {
             // a többi
             ("de", 0.50),
             ("hiszen", 0.50),
-            ("ahol", 0.50),
-            ("amikor", 0.50),
             ("mert", 0.50),
             ("mint", 0.80),
             ("illetve", 1.00),

@@ -6,8 +6,8 @@ pub enum PlainTextToken {
     #[regex("[0-9]+(,[0-9]+)?")]
     Number,
 
-    #[token(".")]
-    Period,
+    #[regex("[.?!]")]
+    EndOfSentence,
 
     #[token(",")]
     Comma,
