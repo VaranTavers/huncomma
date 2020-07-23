@@ -1,6 +1,6 @@
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, Clone)]
 pub enum PlainTextToken {
     // Tokens can be literal strings, of any length.
     #[regex("[0-9]+(,[0-9]+)?")]

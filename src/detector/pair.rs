@@ -10,7 +10,7 @@ use std::cell::Cell;
 /// This doesn't detect if the comma is in the wrong place between the two words! (Not sure yet)
 ///
 /// Example: ha ... akkor: Ha mész vásárolni, akkor ne felejts el tejet hozni!
-/// (If you go out then can you bring me a hamburger?)
+/// (If you go shopping don't forget to buy milk!)
 ///
 ///
 pub struct PairDetector<'a> {
@@ -65,7 +65,7 @@ impl<'a> PairDetector<'a> {
                         errors.push(
                             (self.row, self.col,
                              Mistake::new_dyn(
-                                 format!("A \"{}\" és \"{}\" szavak közé általában vesszőt rakunk (általában a második elé).", self.first_words[index], self.second_words[index][pos]),
+                                 format!("a(z) \"{}\" és \"{}\" szavak közé általában vesszőt rakunk (általában a második elé).", self.first_words[index], self.second_words[index][pos]),
                                  self.probs[pos]
                              )
                         ));
