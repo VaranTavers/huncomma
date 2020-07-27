@@ -65,7 +65,7 @@ impl<'a> PairDetector<'a> {
                         errors.push(
                             (self.row, self.col,
                              Mistake::new_dyn(
-                                 format!("a(z) \"{}\" és \"{}\" szavak közé általában vesszőt rakunk (általában a második elé).", self.first_words[index], self.second_words[index][pos]),
+                                 format!("a(z) \"{}\" és \"{}\" szavak közé általában vesszőt teszünk (általában a második elé).", self.first_words[index], self.second_words[index][pos]),
                                  self.probs[pos]
                              )
                         ));

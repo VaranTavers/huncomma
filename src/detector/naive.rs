@@ -91,7 +91,7 @@ impl<'a> NaiveDetector<'a> {
                 if let Some(pos) = index {
                     errors.push((self.row,
                                  self.col,
-                                 Mistake::new_dyn(format!("a(z) \"{}\" szó elé általában vesszőt rakunk.", self.words[pos]), self.probs[pos])
+                                 Mistake::new_dyn(format!("a(z) \"{}\" szó elé általában vesszőt teszünk.", self.words[pos]), self.probs[pos])
                     ));
                 }
             }
