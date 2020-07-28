@@ -1,3 +1,4 @@
+
 use std::io;
 use std::io::Read;
 
@@ -5,9 +6,11 @@ use logos::Logos;
 
 mod model;
 mod detector;
+mod traits;
 
 use crate::detector::{NaiveDetector, PairDetector};
 use crate::model::{PlainTextToken, Mistake, NaiveSettings};
+use crate::traits::Detector;
 
 fn main() -> io::Result<()> {
     let mut naive_detector = NaiveDetector::new(NaiveSettings::new_from_file("naive.words"));

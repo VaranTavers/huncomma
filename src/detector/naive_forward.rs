@@ -23,6 +23,8 @@ impl<'a> NaiveForwardDetector<'a> {
     pub fn new() -> NaiveForwardDetector<'a> {
         let word_probs = vec![
             ("szia", 1.00),
+            ("na", 1.00),
+            ("hát", 1.00),
             ("helló", 1.00),
             ("szeva", 1.00),
             ("üdvözöllek", 1.00),

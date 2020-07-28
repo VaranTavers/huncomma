@@ -1,7 +1,27 @@
 use crate::model::{PlainTextToken, Mistake, NaiveSettings};
 use logos::Lexer;
+use crate::traits::Detector;
 
-// TODO: Read words from settings file
+/// Contains the status of the current detector (row, column, is_last_token_comma, is_last_token_in_vec)
+///
+/// Generally you shouldn't bother with it.
+struct NaiveStatus {
+    col: usize,
+    row: usize,
+    is_last_token_comma: bool,
+    is_last_token_in_vec: bool,
+}
+
+impl NaiveStatus {
+    pub fn new() -> NaiveStatus {
+        NaiveStatus {
+            col: 1,
+            row: 1,
+            is_last_token_comma: false,
+            is_last_token_in_vec: false,
+        }
+    }
+}
 
 /// Detects if there isn't a comma before the given words. These words are generally preceded by a
 /// comma, however for most of them there are exceptions.
@@ -13,69 +33,76 @@ use logos::Lexer;
 /// doesn't require a comma before it (the first one still does)
 pub struct NaiveDetector {
     settings: NaiveSettings,
-    col: usize,
-    row: usize,
-    is_last_token_comma: bool,
-    is_last_token_in_vec: bool,
+    status: NaiveStatus,
 }
 
 impl NaiveDetector {
     pub fn new(settings: NaiveSettings) -> NaiveDetector {
         NaiveDetector {
             settings,
-            col: 1,
-            row: 1,
-            is_last_token_comma: false,
-            is_last_token_in_vec: false,
+            status: NaiveStatus::new(),
         }
     }
 
-    pub fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
-        self.col = 1;
-        self.row = 1;
-        self.is_last_token_in_vec = false;
-        self.is_last_token_comma = false;
+    fn move_cursor_forward(&mut self, current_token: &PlainTextToken, tokens: &Lexer<PlainTextToken>) {
+        self.status.col += tokens.slice().chars().count() + 1;
+        if *current_token == PlainTextToken::NewLine {
+            self.status.col = 1;
+            self.status.row += 1;
+        }
+    }
+
+    fn get_mistake_for_word(&mut self, pos: usize) -> (usize, usize, Mistake) {
+        (
+            self.status.row,
+            self.status.col,
+            Mistake::new_dyn(
+                format!("a(z) \"{}\" szó elé általában vesszőt teszünk.", self.settings.words[pos]),
+                self.settings.probs[pos]
+            )
+        )
+    }
+}
+
+impl Detector for NaiveDetector {
+    fn detect_errors(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
+        self.status = NaiveStatus::new();
 
         self.detect_errors_in_row(tokens)
     }
 
-    pub fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
+    fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
-
             let index = self.settings.words.iter().position(|a| a == &tokens.slice());
 
-            if !self.is_last_token_comma && !self.is_last_token_in_vec {
+            if !self.status.is_last_token_comma && !self.status.is_last_token_in_vec {
                 if let Some(pos) = index {
-                    errors.push((self.row,
-                                 self.col,
-                                 Mistake::new_dyn(format!("a(z) \"{}\" szó elé általában vesszőt teszünk.", self.settings.words[pos]), self.settings.probs[pos])
-                    ));
+                    errors.push(self.get_mistake_for_word(pos));
                 }
             }
-            self.col += tokens.slice().chars().count() + 1;
-            if token == PlainTextToken::NewLine {
-                self.col = 1;
-                self.row += 1;
-            }
 
-            self.is_last_token_in_vec = index.is_some();
+            self.move_cursor_forward(&token, tokens);
+
+            self.status.is_last_token_in_vec = index.is_some();
             if token != PlainTextToken::NewLine {
-                self.is_last_token_comma = token == PlainTextToken::Comma;
+                self.status.is_last_token_comma = token == PlainTextToken::Comma;
             }
         }
 
-        self.row += 1;
+        self.status.row += 1;
 
         errors
     }
 }
+
 #[cfg(test)]
 mod tests {
     use logos::Logos;
 
     use crate::detector::NaiveDetector;
     use crate::model::{PlainTextToken, NaiveSettings};
+    use crate::traits::Detector;
 
     #[test]
     fn empty_str() {
