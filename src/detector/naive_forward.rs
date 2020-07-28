@@ -1,6 +1,5 @@
 use crate::model::{PlainTextToken, Mistake};
 use logos::Lexer;
-use std::cell::Cell;
 
 // TODO: Read words from settings file
 
@@ -10,7 +9,7 @@ use std::cell::Cell;
 /// Every word is given a probability, which means the following: what is the probability of actually
 /// needing a comma after that word.
 ///
-/// Example: greetings that are not adjectives: szia, helló
+/// Example: greetings that are not adjectives: szia, helló; but not: "kedves" "tisztelt"
 
 pub struct NaiveForwardDetector<'a> {
     words: Vec<&'a str>,
@@ -26,6 +25,8 @@ impl<'a> NaiveForwardDetector<'a> {
             ("szia", 1.00),
             ("helló", 1.00),
             ("szeva", 1.00),
+            ("üdvözöllek", 1.00),
+            ("üdvözöletem", 0.30),
         ];
         NaiveForwardDetector {
             words: word_probs.iter().map(|(a, _b)| *a).collect(),

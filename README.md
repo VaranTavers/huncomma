@@ -7,7 +7,7 @@ doesn't aim to provide a program / library that is correct 100% of the time, and
 
 ## Methods that are used:
 No methods presented are correct all the time, so each method also returns a floating-point number, which represents 
-the probability of needing a comma, if that method detects it. The end result is the combination these probabilities using a Bayesian network. 
+the probability of needing a comma, if that method detects it. The end result is the combination these probabilities. 
 
 These are the methods that are used to determine possible missing commas:
 
