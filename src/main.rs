@@ -8,13 +8,16 @@ mod model;
 mod detector;
 mod traits;
 
-use crate::detector::{NaiveDetector, PairDetector};
+use crate::detector::{NaiveDetector, PairDetector, NaiveForwardDetector};
 use crate::model::{PlainTextToken, Mistake, NaiveSettings, PairSettings};
 use crate::traits::Detector;
 
 fn main() -> io::Result<()> {
-    let mut naive_detector = NaiveDetector::new(NaiveSettings::new_from_file("naive.csv"));
-    let mut pair_detector = PairDetector::new(PairSettings::new_from_file("pair.csv"));
+    let mut detectors: Vec<Box<dyn Detector>> = vec![
+        Box::new(NaiveDetector::new(NaiveSettings::new_from_file("naive.csv"))),
+        Box::new(NaiveForwardDetector::new(NaiveSettings::new_from_file("naive_forward.csv"))),
+        Box::new(PairDetector::new(PairSettings::new_from_file("pair.csv"))),
+    ];
 
     let mut errors: Vec<(usize, usize, Mistake)> = Vec::new();
 
@@ -28,10 +31,10 @@ fn main() -> io::Result<()> {
 
         let mut tokens = PlainTextToken::lexer(buffer.as_str());
 
-        let mut c_errors = naive_detector.detect_errors(&mut tokens.clone());
-        errors.append(&mut c_errors);
-        c_errors = pair_detector.detect_errors(&mut tokens.clone());
-        errors.append(&mut c_errors);
+        for detector in detectors.iter_mut() {
+            let mut c_errors = detector.detect_errors(&mut tokens.clone());
+            errors.append(&mut c_errors);
+        }
     }
 
     for (r, c, mistake) in errors {

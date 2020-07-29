@@ -22,7 +22,7 @@ impl PairSettings {
         for row in rows {
             let cols = row.split(";").collect::<Vec<&str>>();
 
-            if cols.len() > 1 {
+            if cols.len() > 2 {
                 let seconds = cols[2].split(" ").map(|a| String::from(a)).collect();
 
                 first_words.push(String::from(cols[0]));
