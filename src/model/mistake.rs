@@ -1,8 +1,10 @@
+#[derive(Clone)]
 pub enum Msg {
     Static(&'static str),
     Dynamic(String),
 }
 
+#[derive(Clone)]
 pub struct Mistake {
     pub prob: f64,
     pub msg: Msg
