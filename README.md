@@ -3,7 +3,7 @@
 This project aims to be able to detect missing commas in text files that are written in Hungarian. 
 
 To be able to correctly identify missing commas all the time, complex sentence analysis would be necessary. This project
-doesn't aim to provide a program / library that is correct 100% of the time, and it doesn't use the aforementioned methods.
+doesn't aim to provide a library that is correct 100% of the time, and it doesn't use the aforementioned methods.
 
 ## Methods that are used:
 No methods presented are correct all the time, so each method also returns a floating-point number, which represents 
