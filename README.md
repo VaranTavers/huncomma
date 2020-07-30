@@ -11,7 +11,7 @@ the probability of needing a comma, if that method detects it. The end result is
 
 These are the methods that are used to determine possible missing commas:
 
-### Words that are usually preceded by commas
+### Words that are usually preceded by a comma
 
 There are certain words which are usually preceded by commas:
 
@@ -26,9 +26,11 @@ which should be separated by a comma.
 
 Example: `ha ... akkor`: Ha mész vásárolni, akkor ne felejts el tejet hozni! (If you go shopping don't forget to buy milk!)
 
-### Discourse markers
+### Words that are usually followed by a comma
 
-Discourse markers may require one or more commas around them.
+There are certain words which are usually followed by commas:
+
+`szia`, `na`, etc.
 
 Example: If a sentence begins with `Na` that words must be followed by a comma.
 
