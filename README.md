@@ -6,7 +6,7 @@ To be able to correctly identify missing commas all the time, complex sentence a
 doesn't aim to provide a library that is correct 100% of the time, and it doesn't use the aforementioned methods.
 
 This is a library, if you need an executable check out these repositories:
-* [huncomma_terminal][https://github.com/VaranTavers/huncomma_terminal]
+* [huncomma_terminal](https://github.com/VaranTavers/huncomma_terminal)
 
 ## Methods that are used:
 No methods presented are correct all the time, so each method also returns a floating-point number, which represents 
