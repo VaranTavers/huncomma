@@ -3,7 +3,7 @@ use logos::Lexer;
 use std::cell::Cell;
 use crate::traits::Detector;
 
-/// Contains the status of the current PairDetector (row, column, first_word_active)
+/// Contains the status of a PairDetector (row, column, first_word_active)
 ///
 /// Generally you shouldn't bother with it.
 struct PairStatus {
@@ -13,11 +13,11 @@ struct PairStatus {
 }
 
 impl PairStatus {
-    pub fn new(words: usize) -> PairStatus {
+    pub fn new(words_len: usize) -> PairStatus {
         PairStatus {
             col: 1,
             row: 1,
-            first_word_active: vec![Cell::new(false); words],
+            first_word_active: vec![Cell::new(false); words_len],
         }
     }
 }

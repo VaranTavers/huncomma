@@ -8,6 +8,11 @@ doesn't aim to provide a library that is correct 100% of the time, and it doesn'
 This is a library, if you need an executable check out these repositories:
 * [huncomma_terminal](https://github.com/VaranTavers/huncomma_terminal)
 
+##Warning
+
+This library is still under development, it's public API is subject to change, there may be breaking changes 
+on the master branch and on any version previous to 1.0!
+
 ## Methods that are used:
 No methods presented are correct all the time, so each method also returns a floating-point number, which represents 
 the probability of needing a comma, if that method detects it. The end result is the combination these probabilities. 

@@ -2,7 +2,7 @@ use crate::model::{PlainTextToken, Mistake, NaiveSettings};
 use logos::Lexer;
 use crate::traits::Detector;
 
-/// Contains the status of the current NaiveForwardDetector (row, column, active_word)
+/// Contains the status of a NaiveForwardDetector (row, column, active_word)
 ///
 /// Generally you shouldn't bother with it.
 struct NaiveForwardStatus {
@@ -35,6 +35,7 @@ pub struct NaiveForwardDetector {
 }
 
 impl NaiveForwardDetector {
+    /// Since they are really similar, the NaiveForwardDetector uses the same
     pub fn new(settings: NaiveSettings) -> NaiveForwardDetector {
         NaiveForwardDetector {
             settings,

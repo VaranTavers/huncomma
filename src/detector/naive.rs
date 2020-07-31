@@ -2,7 +2,7 @@ use crate::model::{PlainTextToken, Mistake, NaiveSettings};
 use logos::Lexer;
 use crate::traits::Detector;
 
-/// Contains the status of the current NaiveDetector (row, column, is_last_token_comma, is_last_token_in_vec)
+/// Contains the status of a NaiveDetector (row, column, is_last_token_comma, is_last_token_in_vec)
 ///
 /// Generally you shouldn't bother with it.
 struct NaiveStatus {
