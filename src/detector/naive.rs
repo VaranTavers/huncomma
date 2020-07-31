@@ -37,7 +37,27 @@ pub struct NaiveDetector {
 }
 
 impl NaiveDetector {
-    pub fn new(settings: NaiveSettings) -> NaiveDetector {
+    /// Creates a new NaiveDetector for the given words.
+    ///
+    /// Example:
+    /// ```rust
+    /// use logos::Logos;
+    ///
+    /// use huncomma::detector::NaiveDetector;
+    /// use huncomma::model::{NaiveSettings, PlainTextToken};
+    /// use huncomma::traits::Detector;
+    ///
+    /// fn main() {
+    ///     let mut sut = NaiveDetector::new(NaiveSettings::new_from_string(String::from("hogy;0.80")));
+    ///     let mut tokens = PlainTextToken::lexer("Azt szeretném mondani hogy minden jól sikerült.");
+    ///     let errors = sut.detect_errors(&mut tokens);
+    ///
+    ///     for (row, col, mistake) in errors {
+    ///         println!("ln: {} col: {} vesszőhiba: {}", row, col, mistake.get_str());
+    ///     }
+    /// }
+    /// ```
+pub fn new(settings: NaiveSettings) -> NaiveDetector {
         NaiveDetector {
             settings,
             status: NaiveStatus::new(),

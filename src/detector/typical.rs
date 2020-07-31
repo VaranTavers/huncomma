@@ -1,7 +1,7 @@
 use std::cell::Cell;
 use crate::traits::Detector;
 use logos::Lexer;
-use crate::model::{Mistake, PlainTextToken, TypicalSettings};
+use crate::model::{Mistake, PlainTextToken, NaiveSettings};
 
 /// Contains the status of a TypicalDetector (row, column, first_word_active)
 ///
@@ -29,12 +29,35 @@ impl TypicalStatus {
 /// Example: Reméljük, nem esett baja. (there is an implicit "hogy")
 ///  We hope that he/she/it wasn't hurt.
 pub struct TypicalDetector {
-    settings: TypicalSettings,
+    settings: NaiveSettings,
     status: TypicalStatus,
 }
 
 impl TypicalDetector {
-    pub fn new(settings: TypicalSettings) -> TypicalDetector {
+    /// Creates a new TypicalDetector for the given words.
+    ///
+    /// Since they are very similar, the TypicalDetector uses the same settings as the NaiveDetector
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// use logos::Logos;
+    ///
+    /// use huncomma::detector::TypicalDetector;
+    /// use huncomma::model::{NaiveSettings, PlainTextToken};
+    /// use huncomma::traits::Detector;
+    ///
+    /// fn main() {
+    ///     let mut sut = TypicalDetector::new(NaiveSettings::new_from_string(String::from("ha;1.00")));
+    ///     let mut tokens = PlainTextToken::lexer("Ha újra megszületnék biztos rock-and-roll sztár lennék!");
+    ///     let errors = sut.detect_errors(&mut tokens);
+    ///
+    ///     for (row, col, mistake) in errors {
+    ///         println!("ln: {} col: {} vesszőhiba: {}", row, col, mistake.get_str());
+    ///     }
+    /// }
+    /// ```
+    pub fn new(settings: NaiveSettings) -> TypicalDetector {
         TypicalDetector {
             status: TypicalStatus::new(settings.words.len()),
             settings
@@ -106,12 +129,12 @@ mod tests {
     use logos::Logos;
 
     use crate::detector::TypicalDetector;
-    use crate::model::{PlainTextToken, TypicalSettings};
+    use crate::model::{PlainTextToken, NaiveSettings};
     use crate::traits::Detector;
 
     #[test]
     fn empty_str() {
-        let mut sut = TypicalDetector::new(TypicalSettings { words: Vec::new(), probs: Vec::new()});
+        let mut sut = TypicalDetector::new(NaiveSettings { words: Vec::new(), probs: Vec::new()});
         let mut tokens = PlainTextToken::lexer("");
         let errors = sut.detect_errors(&mut tokens);
 
@@ -120,7 +143,7 @@ mod tests {
 
     #[test]
     fn comma_provided() {
-        let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
+        let mut sut = TypicalDetector::new(NaiveSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Remélem, jól van.");
         let errors = sut.detect_errors(&mut tokens);
 
@@ -129,7 +152,7 @@ mod tests {
 
     #[test]
     fn comma_provided_before() {
-        let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
+        let mut sut = TypicalDetector::new(NaiveSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Jól van, remélem.");
         let errors = sut.detect_errors(&mut tokens);
 
@@ -138,7 +161,7 @@ mod tests {
 
     #[test]
     fn semicolon_provided() {
-        let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
+        let mut sut = TypicalDetector::new(NaiveSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Remélem; jól van.");
         let errors = sut.detect_errors(&mut tokens);
 
@@ -147,7 +170,7 @@ mod tests {
 
     #[test]
     fn comma_missing() {
-        let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
+        let mut sut = TypicalDetector::new(NaiveSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Remélem jól van.");
         let errors = sut.detect_errors(&mut tokens);
 

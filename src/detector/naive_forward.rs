@@ -35,7 +35,28 @@ pub struct NaiveForwardDetector {
 }
 
 impl NaiveForwardDetector {
-    /// Since they are really similar, the NaiveForwardDetector uses the same
+    /// Creates a new NaiveForwardDetector for the given words.
+    ///
+    /// Since they are very similar, the NaiveForwardDetector uses the same settings as the NaiveDetector
+    ///
+    /// Example:
+    /// ```rust
+    /// use logos::Logos;
+    ///
+    /// use huncomma::detector::NaiveForwardDetector;
+    /// use huncomma::model::{NaiveSettings, PlainTextToken};
+    /// use huncomma::traits::Detector;
+    ///
+    /// fn main() {
+    ///     let mut sut = NaiveForwardDetector::new(NaiveSettings::new_from_string(String::from("szeva;1.00")));
+    ///     let mut tokens = PlainTextToken::lexer("Szeva meghoztuk a tudod... Hmmm...");
+    ///     let errors = sut.detect_errors(&mut tokens);
+    ///
+    ///     for (row, col, mistake) in errors {
+    ///         println!("ln: {} col: {} vesszőhiba: {}", row, col, mistake.get_str());
+    ///     }
+    /// }
+    /// ```
     pub fn new(settings: NaiveSettings) -> NaiveForwardDetector {
         NaiveForwardDetector {
             settings,
