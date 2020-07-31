@@ -24,7 +24,7 @@ impl TypicalStatus {
     }
 }
 
-/// This detects if there isn't a comma after a word that is tipically introduces clauses.
+/// This detects if there isn't a comma in the sentence which contains word that is tipically introduces clauses.
 ///
 /// Example: Reméljük, nem esett baja. (there is an implicit "hogy")
 ///  We hope that he/she/it wasn't hurt.
