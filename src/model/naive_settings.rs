@@ -1,5 +1,3 @@
-use std::fs;
-
 /// Contains the words that are used in the NaiveDetector.
 ///
 /// Loads words from files.
@@ -10,15 +8,14 @@ pub struct NaiveSettings {
 }
 
 impl NaiveSettings {
-    pub fn new_from_file(filename: &str) -> NaiveSettings {
-        let content = fs::read_to_string(filename).expect(format!("File not found: \"{}\"", filename).as_str());
-        let rows = content.split("\n");
+    pub fn new_from_string(content: String) -> NaiveSettings {
+        let rows = content.split('\n');
 
         let mut words = Vec::new();
         let mut probs = Vec::new();
 
         for row in rows {
-            let cols = row.split(";").collect::<Vec<&str>>();
+            let cols = row.split(';').collect::<Vec<&str>>();
 
             if cols.len() > 1 {
                 words.push(String::from(cols[0]));

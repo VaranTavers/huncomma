@@ -74,7 +74,7 @@ impl Detector for NaiveDetector {
     fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
-            let index = self.settings.words.iter().position(|a| a == &tokens.slice());
+            let index = self.settings.words.iter().position(|a| a == tokens.slice());
 
             if !self.status.is_last_token_comma && !self.status.is_last_token_in_vec {
                 if let Some(pos) = index {

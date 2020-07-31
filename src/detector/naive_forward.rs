@@ -80,7 +80,7 @@ impl Detector for NaiveForwardDetector {
 
         while let Some(token) = tokens.next() {
             let lowercase = String::from(tokens.slice()).to_lowercase();
-            let index = self.settings.words.iter().position(|a| a == &lowercase.as_str());
+            let index = self.settings.words.iter().position(|a| a == lowercase.as_str());
 
             if let Some(pos) = self.status.active_word {
                 if self.is_token_word(&token) {

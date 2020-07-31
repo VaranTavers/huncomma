@@ -54,7 +54,7 @@ impl Detector for PairDetector {
             // is the current one. If it is, then there might be a missing comma.
             for (index, active) in self.status.first_word_active.iter().enumerate() {
                 if active.get() {
-                    let second_index = self.settings.second_words[index].iter().position(|a| a == &lowercase.as_str());
+                    let second_index = self.settings.second_words[index].iter().position(|a| a == lowercase.as_str());
                     if let Some(pos) = second_index {
                         errors.push(self.get_mistake_for_word(index, pos));
                     }
