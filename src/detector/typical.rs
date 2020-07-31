@@ -10,6 +10,7 @@ struct TypicalStatus {
     pub col: usize,
     pub row: usize,
     pub word_active: Vec<Cell<bool>>,
+    pub comma_active: bool,
 }
 
 impl TypicalStatus {
@@ -18,6 +19,7 @@ impl TypicalStatus {
             col: 1,
             row: 1,
             word_active: vec![Cell::new(false); words_len],
+            comma_active: false,
         }
     }
 }
@@ -78,7 +80,7 @@ impl Detector for TypicalDetector {
         while let Some(token) = tokens.next() {
             let lowercase = String::from(tokens.slice()).to_lowercase();
 
-            if token == PlainTextToken::EndOfSentence {
+            if token == PlainTextToken::EndOfSentence && !self.status.comma_active {
                 for (pos, _) in self.status.word_active.iter().enumerate().filter(|(_, a)| a.get()) {
                     errors.push(self.get_mistake_for_word(pos));
                 }
@@ -87,7 +89,11 @@ impl Detector for TypicalDetector {
             self.move_cursor_forward(&token, tokens);
             self.set_active_word(lowercase.as_str());
 
-            if token == PlainTextToken::Comma || token == PlainTextToken::EndOfSentence {
+            if token == PlainTextToken::Comma {
+                self.status.comma_active = true;
+            }
+            if token == PlainTextToken::EndOfSentence {
+                self.status.comma_active = false;
                 self.status.word_active.iter().for_each(|a| a.set(false));
             }
         }
@@ -116,6 +122,15 @@ mod tests {
     fn comma_provided() {
         let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Remélem, jól van.");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn comma_provided_before() {
+        let mut sut = TypicalDetector::new(TypicalSettings { words: vec![String::from("remélem"),], probs: vec![1.0]});
+        let mut tokens = PlainTextToken::lexer("Jól van, remélem.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);

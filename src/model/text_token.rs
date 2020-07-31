@@ -15,8 +15,11 @@ pub enum PlainTextToken {
     #[token("\n")]
     NewLine,
 
-    // Or regular expressions.
-    #[regex("[A-Za-zÀ-ÖØ-öø-ÿ]+")]
+    #[regex("[[()]{}]+")]
+    Parentheses,
+
+    // matches any kind of letter from any language
+    #[regex("\\pL+")]
     Text,
 
     // Logos requires one token variant to handle errors,
@@ -26,4 +29,5 @@ pub enum PlainTextToken {
     // or any other matches we wish to skip.
     #[regex(r"[ \t\f\r]+", logos::skip)]
     Error,
+
 }
