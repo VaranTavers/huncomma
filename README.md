@@ -44,4 +44,10 @@ Example: If a sentence begins with `Na` that words must be followed by a comma.
 
 `Na, mondd már, hogy sikerült!` (the second comma is there because there is an implicit `azt, hogy`)
 
+### Words that are tipically imply a comma in the sentence
 
+There are certain words which are usually require a clause, which in turn requires a comma.
+
+Example: The word `reméljük` is most of the times implies the existence of a clause.
+
+`Reméljük, nem esett baja.` (there is an implicit "hogy")
