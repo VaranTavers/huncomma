@@ -132,6 +132,15 @@ mod tests {
     }
 
     #[test]
+    fn semicolon_provided() {
+        let mut sut = NaiveDetector::new(NaiveSettings { words: vec![String::from("hogy")], probs: vec![1.0] });
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani; hogy minden jól sikerült.");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
     fn comma_duplicate_words() {
         let mut sut = NaiveDetector::new(NaiveSettings { words: vec![String::from("hogy")], probs: vec![1.0] });
         let mut tokens = PlainTextToken::lexer("Nem értem, hogy hogy kellene ezt csinálni.");

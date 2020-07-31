@@ -9,7 +9,7 @@ pub enum PlainTextToken {
     #[regex("[.?!]")]
     EndOfSentence,
 
-    #[token(",;")]
+    #[regex("[;,]")]
     Comma,
 
     #[token("\n")]

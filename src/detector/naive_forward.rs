@@ -145,6 +145,15 @@ mod tests {
     }
 
     #[test]
+    fn semicolon_provided() {
+        let mut sut = NaiveForwardDetector::new(NaiveSettings { words: vec![String::from("szia")], probs: vec![1.0] });
+        let mut tokens = PlainTextToken::lexer("Szia; meghoztuk a tudod... Hmmm...");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
     fn comma_missing() {
         let mut sut = NaiveForwardDetector::new(NaiveSettings { words: vec![String::from("szia")], probs: vec![1.0] });
         let mut tokens = PlainTextToken::lexer("Szia meghoztuk a tudod... Hmmm...");

@@ -128,9 +128,18 @@ mod tests {
     }
 
     #[test]
-    fn comma_present() {
+    fn comma_provided() {
         let mut sut = PairDetector::new(PairSettings { first_words: vec![String::from("mind"), String::from("abban")], second_words: vec![vec![String::from("mind")], vec![String::from("hogy")]], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Mind a tanárok, mind a diákok egyetértenek abban, hogy változásra van szükség!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn semicolon_provided() {
+        let mut sut = PairDetector::new(PairSettings { first_words: vec![String::from("mind"), String::from("abban")], second_words: vec![vec![String::from("mind")], vec![String::from("hogy")]], probs: vec![1.0]});
+        let mut tokens = PlainTextToken::lexer("Mind a tanárok, mind a diákok egyetértenek abban; hogy változásra van szükség!");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);
