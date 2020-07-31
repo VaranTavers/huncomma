@@ -1,9 +1,17 @@
 # huncomma
 
-This project aims to be able to detect missing commas in text files that are written in Hungarian. 
+This library aims to be able to detect missing commas in text files that are written in Hungarian. 
 
 To be able to correctly identify missing commas all the time, complex sentence analysis would be necessary. This project
 doesn't aim to provide a library that is correct 100% of the time, and it doesn't use the aforementioned methods.
+
+This is a library, if you need an executable check out these repositories:
+* [huncomma_terminal](https://github.com/VaranTavers/huncomma_terminal)
+
+##Warning
+
+This library is still under development, it's public API is subject to change, there may be breaking changes 
+on the master branch and on any version previous to 1.0!
 
 ## Methods that are used:
 No methods presented are correct all the time, so each method also returns a floating-point number, which represents 
@@ -36,4 +44,10 @@ Example: If a sentence begins with `Na` that words must be followed by a comma.
 
 `Na, mondd már, hogy sikerült!` (the second comma is there because there is an implicit `azt, hogy`)
 
+### Words that are tipically imply a comma in the sentence
 
+There are certain words which are usually require a clause, which in turn requires a comma.
+
+Example: The word `reméljük` is most of the times implies the existence of a clause.
+
+`Reméljük, nem esett baja.` (there is an implicit "hogy")

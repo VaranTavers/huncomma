@@ -2,7 +2,7 @@ use crate::model::{PlainTextToken, Mistake, NaiveSettings};
 use logos::Lexer;
 use crate::traits::Detector;
 
-/// Contains the status of the current NaiveForwardDetector (row, column, active_word)
+/// Contains the status of a NaiveForwardDetector (row, column, active_word)
 ///
 /// Generally you shouldn't bother with it.
 struct NaiveForwardStatus {
@@ -35,6 +35,7 @@ pub struct NaiveForwardDetector {
 }
 
 impl NaiveForwardDetector {
+    /// Since they are really similar, the NaiveForwardDetector uses the same
     pub fn new(settings: NaiveSettings) -> NaiveForwardDetector {
         NaiveForwardDetector {
             settings,
@@ -79,7 +80,7 @@ impl Detector for NaiveForwardDetector {
 
         while let Some(token) = tokens.next() {
             let lowercase = String::from(tokens.slice()).to_lowercase();
-            let index = self.settings.words.iter().position(|a| a == &lowercase.as_str());
+            let index = self.settings.words.iter().position(|a| a == lowercase.as_str());
 
             if let Some(pos) = self.status.active_word {
                 if self.is_token_word(&token) {
@@ -139,6 +140,15 @@ mod tests {
     fn comma_provided() {
         let mut sut = NaiveForwardDetector::new(NaiveSettings { words: vec![String::from("szia")], probs: vec![1.0] });
         let mut tokens = PlainTextToken::lexer("Szia, meghoztuk a tudod... Hmmm...");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn semicolon_provided() {
+        let mut sut = NaiveForwardDetector::new(NaiveSettings { words: vec![String::from("szia")], probs: vec![1.0] });
+        let mut tokens = PlainTextToken::lexer("Szia; meghoztuk a tudod... Hmmm...");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);

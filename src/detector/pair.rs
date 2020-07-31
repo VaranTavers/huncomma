@@ -3,7 +3,7 @@ use logos::Lexer;
 use std::cell::Cell;
 use crate::traits::Detector;
 
-/// Contains the status of the current PairDetector (row, column, first_word_active)
+/// Contains the status of a PairDetector (row, column, first_word_active)
 ///
 /// Generally you shouldn't bother with it.
 struct PairStatus {
@@ -13,11 +13,11 @@ struct PairStatus {
 }
 
 impl PairStatus {
-    pub fn new(words: usize) -> PairStatus {
+    pub fn new(words_len: usize) -> PairStatus {
         PairStatus {
             col: 1,
             row: 1,
-            first_word_active: vec![Cell::new(false); words],
+            first_word_active: vec![Cell::new(false); words_len],
         }
     }
 }
@@ -54,7 +54,7 @@ impl Detector for PairDetector {
             // is the current one. If it is, then there might be a missing comma.
             for (index, active) in self.status.first_word_active.iter().enumerate() {
                 if active.get() {
-                    let second_index = self.settings.second_words[index].iter().position(|a| a == &lowercase.as_str());
+                    let second_index = self.settings.second_words[index].iter().position(|a| a == lowercase.as_str());
                     if let Some(pos) = second_index {
                         errors.push(self.get_mistake_for_word(index, pos));
                     }
@@ -128,9 +128,18 @@ mod tests {
     }
 
     #[test]
-    fn comma_present() {
+    fn comma_provided() {
         let mut sut = PairDetector::new(PairSettings { first_words: vec![String::from("mind"), String::from("abban")], second_words: vec![vec![String::from("mind")], vec![String::from("hogy")]], probs: vec![1.0]});
         let mut tokens = PlainTextToken::lexer("Mind a tanárok, mind a diákok egyetértenek abban, hogy változásra van szükség!");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn semicolon_provided() {
+        let mut sut = PairDetector::new(PairSettings { first_words: vec![String::from("mind"), String::from("abban")], second_words: vec![vec![String::from("mind")], vec![String::from("hogy")]], probs: vec![1.0]});
+        let mut tokens = PlainTextToken::lexer("Mind a tanárok, mind a diákok egyetértenek abban; hogy változásra van szükség!");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);

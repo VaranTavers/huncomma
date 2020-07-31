@@ -2,7 +2,7 @@ use crate::model::{PlainTextToken, Mistake, NaiveSettings};
 use logos::Lexer;
 use crate::traits::Detector;
 
-/// Contains the status of the current NaiveDetector (row, column, is_last_token_comma, is_last_token_in_vec)
+/// Contains the status of a NaiveDetector (row, column, is_last_token_comma, is_last_token_in_vec)
 ///
 /// Generally you shouldn't bother with it.
 struct NaiveStatus {
@@ -74,7 +74,7 @@ impl Detector for NaiveDetector {
     fn detect_errors_in_row(&mut self, tokens: &mut Lexer<PlainTextToken>) -> Vec<(usize, usize, Mistake)> {
         let mut errors = Vec::new();
         while let Some(token) = tokens.next() {
-            let index = self.settings.words.iter().position(|a| a == &tokens.slice());
+            let index = self.settings.words.iter().position(|a| a == tokens.slice());
 
             if !self.status.is_last_token_comma && !self.status.is_last_token_in_vec {
                 if let Some(pos) = index {
@@ -126,6 +126,15 @@ mod tests {
     fn comma_provided() {
         let mut sut = NaiveDetector::new(NaiveSettings { words: vec![String::from("hogy")], probs: vec![1.0] });
         let mut tokens = PlainTextToken::lexer("Azt szeretném mondani, hogy minden jól sikerült.");
+        let errors = sut.detect_errors(&mut tokens);
+
+        assert_eq!(errors.len(), 0);
+    }
+
+    #[test]
+    fn semicolon_provided() {
+        let mut sut = NaiveDetector::new(NaiveSettings { words: vec![String::from("hogy")], probs: vec![1.0] });
+        let mut tokens = PlainTextToken::lexer("Azt szeretném mondani; hogy minden jól sikerült.");
         let errors = sut.detect_errors(&mut tokens);
 
         assert_eq!(errors.len(), 0);

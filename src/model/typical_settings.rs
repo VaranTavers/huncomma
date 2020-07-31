@@ -1,14 +1,14 @@
-/// Contains the words that are used in the NaiveDetector.
+/// Contains the words that are used in the TypicalDetector.
 ///
 /// Loads words from files.
 #[derive(Clone)]
-pub struct NaiveSettings {
+pub struct TypicalSettings {
     pub words: Vec<String>,
     pub probs: Vec<f64>,
 }
 
-impl NaiveSettings {
-    pub fn new_from_string(content: String) -> NaiveSettings {
+impl TypicalSettings {
+    pub fn new_from_string(content: String) -> TypicalSettings {
         let rows = content.split('\n');
 
         let mut words = Vec::new();
@@ -23,7 +23,7 @@ impl NaiveSettings {
             }
         }
 
-        NaiveSettings {
+        TypicalSettings {
             words,
             probs,
         }
